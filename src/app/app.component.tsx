@@ -1,13 +1,9 @@
 import { Component, Injector } from '@angular/core'
 import classNames from 'classnames'
 import { createElement, Renderable } from 'ng-vdom'
+import { Todo, TodoService } from './todo.service'
 
 let counter = 0
-
-export interface Todo {
-  title: string
-  completed: boolean
-}
 
 @Component({
   selector: 'app-root',
@@ -15,10 +11,13 @@ export interface Todo {
 })
 export class AppComponent extends Renderable {
   newItemTitle = ''
-  todos: Todo[] = []
   editing: Todo | null = null
 
-  constructor(injector: Injector) {
+  get todos() {
+    return this.todoService.todos
+  }
+
+  constructor(injector: Injector, private todoService: TodoService) {
     super(injector)
 
     this.onNewItemChange = this.onNewItemChange.bind(this)
@@ -29,12 +28,6 @@ export class AppComponent extends Renderable {
     this.onEditing = this.onEditing.bind(this)
     this.onItemChange = this.onItemChange.bind(this)
     this.onRemoveItem = this.onRemoveItem.bind(this)
-
-    const restored = localStorage.getItem('todos')
-
-    if (restored) {
-      this.todos = JSON.parse(restored)
-    }
   }
 
   render() {
@@ -53,57 +46,33 @@ export class AppComponent extends Renderable {
     this.newItemTitle = title
   }
 
-  onNewItemSubmit() {
-    this.todos.push({ title: this.newItemTitle, completed: false })
-    this.newItemTitle = ''
-
-    this.commit()
-  }
-
-  onClearCompleted() {
-    for (let i = this.todos.length - 1; i >= 0; i--) {
-      if (this.todos[i].completed) {
-        this.todos.splice(i, 1)
-      }
-    }
-
-    this.commit()
-  }
-
-  onCompleteAll() {
-    for (const todo of this.todos) {
-      todo.completed = true
-    }
-
-    this.commit()
-  }
-
-  onCheckItem(item: Todo) {
-    item.completed = !item.completed
-
-    this.commit()
-  }
-
   onEditing(item: Todo | null) {
     this.editing = item
   }
 
-  onItemChange(item: Todo, title: string) {
-    item.title = title
+  onNewItemSubmit() {
+    this.todoService.add(this.newItemTitle)
+    this.newItemTitle = ''
+  }
 
-    this.commit()
+  onClearCompleted() {
+    this.todoService.clearCompleted()
+  }
+
+  onCompleteAll() {
+    this.todoService.completeAll()
+  }
+
+  onCheckItem(item: Todo) {
+    this.todoService.toggleItem(item)
+  }
+
+  onItemChange(item: Todo, title: string) {
+    this.todoService.changeItemTitle(item, title)
   }
 
   onRemoveItem(item: Todo) {
-    const index = this.todos.indexOf(item)
-    this.todos.splice(index, 1)
-
-    this.commit()
-  }
-
-  private commit() {
-    const serialized = JSON.stringify(this.todos)
-    localStorage.setItem('todos', serialized)
+    this.todoService.removeItem(item)
   }
 }
 
