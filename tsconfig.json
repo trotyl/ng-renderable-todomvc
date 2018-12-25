@@ -9,6 +9,8 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "jsx": "react",
+    "jsxFactory": "createElement",
     "importHelpers": true,
     "target": "es5",
     "typeRoots": [
