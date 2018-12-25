@@ -3,6 +3,10 @@ import classNames from 'classnames'
 import { createElement, Renderable } from 'ng-vdom'
 import { Todo, TodoService } from './todo.service'
 
+const React = {
+  createElement,
+}
+
 let counter = 0
 
 @Component({
@@ -31,7 +35,7 @@ export class AppComponent extends Renderable {
   }
 
   render() {
-    console.log(`rendered ${++counter} times`)
+    console.log(`rendered ${++counter} times.`)
 
     return (
       <section className="todoapp">
